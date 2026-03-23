@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background: #0f172a;
+    color: white;
+    overflow: hidden;
+}
+
+.slide {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    padding: 60px;
+    box-sizing: border-box;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: all 0.6s ease;
+}
+
+.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+h1 { font-size: 55px; }
+h2 { font-size: 40px; }
+
+p, li {
+    font-size: 22px;
+    line-height: 1.6;
+}
+
+ul { margin-top: 20px; }
+
+img {
+    max-width: 40%;
+    border-radius: 15px;
+    margin-top: 20px;
+}
+
+.flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.controls {
+    position: fixed;
+    bottom: 20px;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 30px;
+}
+
+button {
+    padding: 12px 25px;
+    font-size: 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: #3b82f6;
+    color: white;
+}
+
+#counter {
+    position: fixed;
+    top: 20px;
+    right: 30px;
+    font-size: 18px;
+}
+</style>
+    
+       
+  
+
+</head>
+<body>
+   <div id="counter">1 / 8</div>
+
+<!-- 1 -->
+<div class="slide active">
+    <h1>Data Science</h1>
+    <p>Ma'lumotlardan bilim olish san'ati va ilmi</p>
+    <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71" alt="Data">
+</div>
+
+<!-- 2 -->
+<div class="slide flex">
+    <div>
+        <h2>Data Science nima?</h2>
+        <p>Katta hajmdagi ma'lumotlarni tahlil qilib, foydali xulosalar chiqarish.</p>
+    </div>
+    <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d">
+</div>
+
+<!-- 3 -->
+<div class="slide">
+    <h2>Asosiy komponentlar</h2>
+    <ul>
+        <li>Statistika</li>
+        <li>Matematika</li>
+        <li>Dasturlash</li>
+        <li>Machine Learning</li>
+    </ul>
+    <img src="https://images.unsplash.com/photo-1518770660439-4636190af475">
+</div>
+
+<!-- 4 -->
+<div class="slide">
+    <h2>Jarayon</h2>
+    <ul>
+        <li>Data Collection</li>
+        <li>Data Cleaning</li>
+        <li>Model Building</li>
+        <li>Deployment</li>
+    </ul>
+    <img src="https://images.unsplash.com/photo-1526378722484-cc5c510f9a6d">
+</div>
+
+<!-- 5 -->
+<div class="slide">
+    <h2>Real Hayotdagi Misol</h2>
+    <p>Netflix tavsiya tizimi, bank kredit baholash, reklama targetingi.</p>
+    <img src="https://images.unsplash.com/photo-1581093588401-22d1d3a1a6e0">
+</div>
+
+<!-- 6 (Chart) -->
+<div class="slide">
+    <h2>Data Science O'sish Statistikasi</h2>
+    <canvas id="myChart" width="400" height="200"></canvas>
+</div>
+
+<!-- 7 -->
+<div class="slide">
+    <h2>Afzalliklari</h2>
+    <ul>
+        <li>To‘g‘ri qaror qabul qilish</li>
+        <li>Kelajakni bashorat qilish</li>
+        <li>Biznes samaradorligi</li>
+    </ul>
+</div>
+
+<!-- 8 -->
+<div class="slide">
+    <h1>Rahmat!</h1>
+    <p>Savollaringiz bormi?</p>
+</div>
+
+<div class="controls">
+    <button onclick="prevSlide()">⬅ Oldingi</button>
+    <button onclick="nextSlide()">Keyingi ➡</button>
+</div>
+
+<script>
+let slides = document.querySelectorAll(".slide");
+let current = 0;
+let counter = document.getElementById("counter");
+
+function showSlide(index) {
+    slides[current].classList.remove("active");
+    current = index;
+    slides[current].classList.add("active");
+    counter.innerText = (current + 1) + " / " + slides.length;
+}
+
+function nextSlide() {
+    let next = (current + 1) % slides.length;
+    showSlide(next);
+}
+
+function prevSlide() {
+    let prev = (current - 1 + slides.length) % slides.length;
+    showSlide(prev);
+}
+
+document.addEventListener("keydown", function(e) {
+    if (e.key === "ArrowRight") nextSlide();
+    if (e.key === "ArrowLeft") prevSlide();
+});
+
+/* Chart */
+const ctx = document.getElementById('myChart');
+new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['2022', '2023', '2024', '2025'],
+        datasets: [{
+            label: 'Data Science Job Growth %',
+            data: [20, 35, 50, 70],
+            backgroundColor: '#3b82f6'
+        }]
+    }
+});
+</script>
+</body>
+</html>
