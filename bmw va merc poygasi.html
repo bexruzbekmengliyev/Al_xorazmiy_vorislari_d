@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏎️ BMW vs Mercedes Poyga</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #0a0a0a;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden;
+        }
+
+        #gameContainer {
+            position: relative;
+            width: 480px;
+            height: 700px;
+            border: 3px solid #333;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 0 50px rgba(0, 150, 255, 0.3);
+        }
+
+        /* ===== BOSH SAHIFA ===== */
+        #menuScreen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: linear-gradient(135deg, #0d0d0d 0%, #1a1a2e 50%, #16213e 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        #menuScreen h1 {
+            color: #fff;
+            font-size: 28px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+        }
+
+        #menuScreen h1 span.bmw-color { color: #0066cc; }
+        #menuScreen h1 span.merc-color { color: #00cc66; }
+
+        #menuScreen p {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .car-select {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .car-option {
+            padding: 15px 25px;
+            border: 2px solid #444;
+            border-radius: 15px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .car-option:hover {
+            transform: scale(1.05);
+        }
+
+        .car-option.bmw-option {
+            border-color: #0066cc;
+        }
+        .car-option.bmw-option:hover, .car-option.bmw-option.selected {
+            background: rgba(0, 102, 204, 0.3);
+            box-shadow: 0 0 30px rgba(0, 102, 204, 0.5);
+        }
+
+        .car-option.merc-option {
+            border-color: #00cc66;
+        }
+        .car-option.merc-option:hover, .car-option.merc-option.selected {
+            background: rgba(0, 204, 102, 0.3);
+            box-shadow: 0 0 30px rgba(0, 204, 102, 0.5);
+        }
+
+        .car-option .car-icon {
+            font-size: 50px;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .car-option .car-name {
+            color: #fff;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        .car-option .car-speed {
+            color: #aaa;
+            font-size: 12px;
+        }
+
+        #startBtn {
+            padding: 15px 50px;
+            font-size: 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #ff6b35, #f7c948);
+            color: #000;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #startBtn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.6);
+        }
+
+        #startBtn:disabled {
+            background: #555;
+            color: #888;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* ===== O'YIN HUD ===== */
+        #hud {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 50;
+            background: linear-gradient(180deg, rgba(0,0,0,0.8) 0%, transparent 100%);
+        }
+
+        .hud-item {
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .hud-item span {
+            font-size: 18px;
+        }
+
+        #scoreDisplay { color: #f7c948; }
+        #speedDisplay { color: #00ccff; }
+        #livesDisplay { color: #ff4444; }
+
+        /* ===== YO'L ===== */
+        #gameCanvas {
+            display: block;
+            background: #333;
+        }
+
+        /* ===== GAME OVER ===== */
+        #gameOverScreen {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        #gameOverScreen h2 {
+            color: #ff4444;
+            font-size: 36px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255, 68, 68, 0.5);
+        }
+
+        #gameOverScreen .final-score {
+            color: #f7c948;
+            font-size: 24px;
+            margin-bottom: 5px;
+        }
+
+        #gameOverScreen .high-score {
+            color: #00ccff;
+            font-size: 16px;
+            margin-bottom: 25px;
+        }
+
+        #restartBtn {
+            padding: 12px 40px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #00ccff, #0066cc);
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        #restartBtn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 30px rgba(0, 204, 255, 0.6);
+        }
+
+        /* ===== MOBIL CONTROLS ===== */
+        #mobileControls {
+            position: absolute;
+            bottom: 15px;
+            left: 0;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 15px;
+            z-index: 60;
+        }
+
+        .ctrl-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            font-size: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            transition: background 0.2s;
+        }
+
+        .ctrl-btn:active {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* ===== NITRO BAR ===== */
+        #nitroBar {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 12px;
+            height: 150px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 6px;
+            border: 1px solid #444;
+            z-index: 50;
+            overflow: hidden;
+        }
+
+        #nitroFill {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            background: linear-gradient(0deg, #ff6b35, #f7c948);
+            border-radius: 6px;
+            transition: height 0.1s;
+        }
+
+        #nitroLabel {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%) rotate(90deg);
+            color: #f7c948;
+            font-size: 10px;
+            font-weight: bold;
+            z-index: 50;
+            letter-spacing: 2px;
+        }
+
+        /* ===== PAUZA ===== */
+        #pauseOverlay {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 90;
+        }
+
+        #pauseOverlay h2 {
+            color: #fff;
+            font-size: 36px;
+        }
+
+        /* ===== POWERUP MESSAGE ===== */
+        .powerup-msg {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #f7c948;
+            font-size: 20px;
+            font-weight: bold;
+            z-index: 55;
+            text-shadow: 0 0 10px rgba(247, 201, 72, 0.8);
+            animation: fadeUp 1.5s forwards;
+            pointer-events: none;
+        }
+
+        @keyframes fadeUp {
+            0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            100% { opacity: 0; transform: translate(-50%, -150%) scale(1.5); }
+        }
+
+        .instructions {
+            color: #666;
+            font-size: 11px;
+            margin-top: 15px;
+            text-align: center;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+
+<div id="gameContainer">
+    <!-- BOSH SAHIFA -->
+    <div id="menuScreen">
+        <h1>🏎️ <span class="bmw-color">BMW</span> vs <span class="merc-color">MERCEDES</span></h1>
+        <p>Poyga o'yini — mashinangizni tanlang!</p>
+
+        <div class="car-select">
+            <div class="car-option bmw-option" onclick="selectCar('bmw')" id="bmwOption">
+                <span class="car-icon">🔵</span>
+                <span class="car-name">BMW M5</span>
+                <span class="car-speed">⚡ Tez: Yuqori</span>
+            </div>
+            <div class="car-option merc-option" onclick="selectCar('mercedes')" id="mercOption">
+                <span class="car-icon">🟢</span>
+                <span class="car-name">Mercedes AMG</span>
+                <span class="car-speed">🛡️ Mustahkam</span>
+            </div>
+        </div>
+
+        <button id="startBtn" onclick="startGame()" disabled>🏁 BOSHLASH</button>
+
+        <div class="instructions">
+            ⬅️ ➡️ — Chapga/O'ngga &nbsp;|&nbsp; ⬆️ — Nitro 🔥 &nbsp;|&nbsp; P — Pauza
+        </div>
+    </div>
+
+    <!-- O'YIN HUD -->
+    <div id="hud" style="display:none;">
+        <div class="hud-item">⭐ <span id="scoreDisplay">0</span></div>
+        <div class="hud-item">🏎️ <span id="speedDisplay">60</span> km/h</div>
+        <div class="hud-item" id="livesDisplay">❤️❤️❤️</div>
+    </div>
+
+    <!-- NITRO BAR -->
+    <div id="nitroBar" style="display:none;">
+        <div id="nitroFill" style="height: 100%;"></div>
+    </div>
+    <div id="nitroLabel" style="display:none;">NITRO</div>
+
+    <!-- CANVAS -->
+    <canvas id="gameCanvas" width="480" height="700" style="display:none;"></canvas>
+
+    <!-- MOBILE CONTROLS -->
+    <div id="mobileControls" style="display:none;">
+        <div class="ctrl-btn" id="btnLeft">⬅️</div>
+        <div class="ctrl-btn" id="btnNitro">🔥</div>
+        <div class="ctrl-btn" id="btnRight">➡️</div>
+    </div>
+
+    <!-- PAUSE -->
+    <div id="pauseOverlay">
+        <h2>⏸️ PAUZA</h2>
+    </div>
+
+    <!-- GAME OVER -->
+    <div id="gameOverScreen">
+        <h2>💥 AVARIYA!</h2>
+        <div class="final-score">Ball: <span id="finalScore">0</span></div>
+        <div class="high-score">🏆 Eng yaxshi: <span id="highScore">0</span></div>
+        <button id="restartBtn" onclick="goToMenu()">🔄 QAYTA BOSHLASH</button>
+    </div>
+</div>
+
+<script>
+    // ===== O'ZGARUVCHILAR =====
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+
+    let selectedCar = null;
+    let gameRunning = false;
+    let gamePaused = false;
+    let score = 0;
+    let highScore = localStorage.getItem('raceHighScore') || 0;
+    let lives = 3;
+    let speed = 3;
+    let maxSpeed = 12;
+    let nitro = 100;
+    let nitroActive = false;
+    let roadOffset = 0;
+    let player = {};
+    let enemies = [];
+    let powerups = [];
+    let particles = [];
+    let frameCount = 0;
+    let keys = {};
+    let invincible = false;
+    let invincibleTimer = 0;
+
+    // ===== MASHINA TANLASH =====
+    function selectCar(car) {
+        selectedCar = car;
+        document.getElementById('bmwOption').classList.toggle('selected', car === 'bmw');
+        document.getElementById('mercOption').classList.toggle('selected', car === 'mercedes');
+        document.getElementById('startBtn').disabled = false;
+    }
+
+    // ===== O'YINNI BOSHLASH =====
+    function startGame() {
+        document.getElementById('menuScreen').style.display = 'none';
+        canvas.style.display = 'block';
+        document.getElementById('hud').style.display = 'flex';
+        document.getElementById('nitroBar').style.display = 'block';
+        document.getElementById('nitroLabel').style.display = 'block';
+        document.getElementById('mobileControls').style.display = 'flex';
+        document.getElementById('gameOverScreen').style.display = 'none';
+
+        score = 0;
+        lives = 3;
+        speed = 3;
+        nitro = 100;
+        nitroActive = false;
+        enemies = [];
+        powerups = [];
+        particles = [];
+        frameCount = 0;
+        invincible = false;
+        invincibleTimer = 0;
+        gamePaused = false;
+
+        // O'yinchi mashinasi
+        const isBMW = selectedCar === 'bmw';
+        player = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height - 150,
+            width: 50,
+            height: 90,
+            speed: isBMW ? 7 : 6,
+            color: isBMW ? '#0066cc' : '#00cc66',
+            accentColor: isBMW ? '#004499' : '#009944',
+            name: isBMW ? 'BMW' : 'Mercedes',
+            isBMW: isBMW
+        };
+
+        gameRunning = true;
+        updateHUD();
+        gameLoop();
+    }
+
+    // ===== MENYUGA QAYTISH =====
+    function goToMenu() {
+        document.getElementById('menuScreen').style.display = 'flex';
+        canvas.style.display = 'none';
+        document.getElementById('hud').style.display = 'none';
+        document.getElementById('nitroBar').style.display = 'none';
+        document.getElementById('nitroLabel').style.display = 'none';
+        document.getElementById('mobileControls').style.display = 'none';
+        document.getElementById('gameOverScreen').style.display = 'none';
+        gameRunning = false;
+    }
+
+    // ===== HUD YANGILASH =====
+    function updateHUD() {
+        document.getElementById('scoreDisplay').textContent = score;
+        document.getElementById('speedDisplay').textContent = Math.floor(speed * 20);
+        let heartsStr = '';
+        for (let i = 0; i < lives; i++) heartsStr += '❤️';
+        for (let i = lives; i < 3; i++) heartsStr += '🖤';
+        document.getElementById('livesDisplay').innerHTML = heartsStr;
+    }
+
+    // ===== YO'L CHIZISH =====
+    function drawRoad() {
+        // Asosiy yo'l
+        ctx.fillStyle = '#2a2a2a';
+        ctx.fillRect(40, 0, 400, canvas.height);
+
+        // Yo'l chetlari
+        ctx.fillStyle = '#444';
+        ctx.fillRect(35, 0, 8, canvas.height);
+        ctx.fillRect(437, 0, 8, canvas.height);
+
+        // Qizil-oq chiziqlar (chet)
+        for (let y = -50 + (roadOffset * 2 % 40); y < canvas.height; y += 40) {
+            ctx.fillStyle = '#ff0000';
+            ctx.fillRect(35, y, 8, 20);
+            ctx.fillRect(437, y, 8, 20);
+        }
+
+        // Yo'l chiziqlari (oq)
+        ctx.setLineDash([30, 25]);
+        ctx.lineDashOffset = -roadOffset * 2;
+        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
+        ctx.lineWidth = 3;
+
+        // 3 ta bo'linish chizig'i
+        for (let i = 1; i <= 3; i++) {
+            ctx.beginPath();
+            ctx.moveTo(40 + (400 / 4) * i, 0);
+            ctx.lineTo(40 + (400 / 4) * i, canvas.height);
+            ctx.stroke();
+        }
+        ctx.setLineDash([]);
+    }
+
+    // ===== MASHINA CHIZISH =====
+    function drawCar(x, y, w, h, color, accent, isPlayer, name) {
+        ctx.save();
+
+        // Soyasi
+        ctx.fillStyle = 'rgba(0,0,0,0.3)';
+        ctx.beginPath();
+        ctx.ellipse(x + w / 2 + 3, y + h + 5, w / 2 + 2, 8, 0, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Mashina tanasi
+        const radius = 8;
+        ctx.beginPath();
+        ctx.moveTo(x + radius, y);
+        ctx.lineTo(x + w - radius, y);
+        ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+        ctx.lineTo(x + w, y + h - radius);
+        ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+        ctx.lineTo(x + radius, y + h);
+        ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+        ctx.lineTo(x, y + radius);
+        ctx.quadraticCurveTo(x, y, x + radius, y);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0,0,0,0.3)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Oynalar
+        if (isPlayer) {
+            // Old oyna
+            ctx.fillStyle = 'rgba(100, 200, 255, 0.6)';
+            ctx.beginPath();
+            ctx.moveTo(x + 8, y + 20);
+            ctx.lineTo(x + w - 8, y + 20);
+            ctx.lineTo(x + w - 12, y + 45);
+            ctx.lineTo(x + 12, y + 45);
+            ctx.closePath();
+            ctx.fill();
+
+            // Orqa oyna
+            ctx.fillStyle = 'rgba(100, 200, 255, 0.4)';
+            ctx.beginPath();
+            ctx.moveTo(x + 10, y + 55);
+            ctx.lineTo(x + w - 10, y + 55);
+            ctx.lineTo(x + w - 14, y + 72);
+            ctx.lineTo(x + 14, y + 72);
+            ctx.closePath();
+            ctx.fill();
+        } else {
+            // Dushman mashinasi (teskari)
+            ctx.fillStyle = 'rgba(100, 200, 255, 0.5)';
+            ctx.beginPath();
+            ctx.moveTo(x + 8, y + h - 20);
+            ctx.lineTo(x + w - 8, y + h - 20);
+            ctx.lineTo(x + w - 12, y + h - 45);
+            ctx.lineTo(x + 12, y + h - 45);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Chiroqlar
+        if (isPlayer) {
+            // Old chiroqlar
+            ctx.fillStyle = '#ffff88';
+            ctx.shadowColor = '#ffff00';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.arc(x + 10, y + 5, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + w - 10, y + 5, 4, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+
+            // Orqa chiroqlar
+            ctx.fillStyle = '#ff3333';
+            ctx.shadowColor = '#ff0000';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(x + 8, y + h - 5, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + w - 8, y + h - 5, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        } else {
+            // Dushman arqa chiroqlari (yuqorida ko'rinadi)
+            ctx.fillStyle = '#ff3333';
+            ctx.shadowColor = '#ff0000';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(x + 8, y + h - 5, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(x + w - 8, y + h - 5, 3, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0;
+        }
+
+        // BMW / Mercedes belgisi
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 11px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(name, x + w / 2, y + h / 2 + 4);
+
+        ctx.restore();
+    }
+
+    // ===== DUSHMAN CHIZISH =====
+    function drawEnemyCar(enemy) {
+        drawCar(enemy.x, enemy.y, enemy.width, enemy.height, enemy.color, enemy.accent, false, enemy.name);
+    }
+
+    // ===== POWERUP CHIZISH =====
+    function drawPowerup(p) {
+        ctx.save();
+        const pulse = Math.sin(frameCount * 0.1) * 5;
+
+        // Glow
+        ctx.shadowColor = p.type === 'heart' ? '#ff4444' : p.type === 'nitro' ? '#f7c948' : '#00ccff';
+        ctx.shadowBlur = 15 + pulse;
+
+        ctx.font = '28px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText(p.icon, p.x + p.width / 2, p.y + p.height / 2 + 10);
+
+        ctx.restore();
+    }
+
+    // ===== ZARRACHALAR =====
+    function createParticles(x, y, color, count) {
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x: x,
+                y: y,
+                vx: (Math.random() - 0.5) * 8,
+                vy: (Math.random() - 0.5) * 8,
+                life: 30 + Math.random() * 20,
+                maxLife: 50,
+                color: color,
+                size: 2 + Math.random() * 4
+            });
+        }
+    }
+
+    function updateParticles() {
+        for (let i = particles.length - 1; i >= 0; i--) {
+            const p = particles[i];
+            p.x += p.vx;
+            p.y += p.vy;
+            p.life--;
+            p.vx *= 0.95;
+            p.vy *= 0.95;
+            if (p.life <= 0) particles.splice(i, 1);
+        }
+    }
+
+    function drawParticles() {
+        particles.forEach(p => {
+            ctx.globalAlpha = p.life / p.maxLife;
+            ctx.fillStyle = p.color;
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+            ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+    }
+
+    // ===== TO'QNASHUV TEKSHIRISH =====
+    function checkCollision(a, b) {
+        return a.x < b.x + b.width &&
+               a.x + a.width > b.x &&
+               a.y < b.y + b.height &&
+               a.y + a.height > b.y;
+    }
+
+    // ===== DUSHMAN YARATISH =====
+    function spawnEnemy() {
+        const lane = Math.floor(Math.random() * 4);
+        const laneWidth = 100;
+        const x = 40 + lane * laneWidth + 25;
+
+        const colors = [
+            { color: '#cc0000', accent: '#990000', name: 'RAQIB' },
+            { color: '#cc6600', accent: '#994400', name: 'AUDI' },
+            { color: '#9900cc', accent: '#660099', name: 'TOYOTA' },
+            { color: '#006699', accent: '#004466', name: 'HONDA' },
+            { color: '#666666', accent: '#444444', name: 'FORD' },
+            { color: '#cc0066', accent: '#990044', name: 'KIA' }
+        ];
+        const c = colors[Math.floor(Math.random() * colors.length)];
+
+        enemies.push({
+            x: x,
+            y: -100,
+            width: 50,
+            height: 90,
+            speed: 1 + Math.random() * 2,
+            color: c.color,
+            accent: c.accent,
+            name: c.name
+        });
+    }
+
+    // ===== POWERUP YARATISH =====
+    function spawnPowerup() {
+        const types = ['heart', 'nitro', 'shield'];
+        const type = types[Math.floor(Math.random() * types.length)];
+        const lane = Math.floor(Math.random() * 4);
+        const laneWidth = 100;
+        const x = 40 + lane * laneWidth + 25;
+
+        const icons = { heart: '❤️', nitro: '⚡', shield: '🛡️' };
+
+        powerups.push({
+            x: x,
+            y: -40,
+            width: 40,
+            height: 40,
+            type: type,
+            icon: icons[type],
+            speed: 2
+        });
+    }
+
+    // ===== POWERUP XABARI =====
+    function showPowerupMsg(text) {
+        const msg = document.createElement('div');
+        msg.className = 'powerup-msg';
+        msg.textContent = text;
+        document.getElementById('gameContainer').appendChild(msg);
+        setTimeout(() => msg.remove(), 1500);
+    }
+
+    // ===== O'YIN TUGASH =====
+    function gameOver() {
+        gameRunning = false;
+
+        if (score > highScore) {
+            highScore = score;
+            localStorage.setItem('raceHighScore', highScore);
+        }
+
+        document.getElementById('finalScore').textContent = score;
+        document.getElementById('highScore').textContent = highScore;
+        document.getElementById('gameOverScreen').style.display = 'flex';
+    }
+
+    // ===== ASOSIY O'YIN SIKLI =====
+    function gameLoop() {
+        if (!gameRunning) return;
+
+        if (!gamePaused) {
+            frameCount++;
+
+            // Tezlik oshadi
+            if (frameCount % 300 === 0 && speed < maxSpeed) {
+                speed += 0.3;
+            }
+
+            // Nitro
+            if (keys['ArrowUp'] || keys['w']) {
+                if (nitro > 0) {
+                    nitroActive = true;
+                    nitro -= 0.8;
+                } else {
+                    nitroActive = false;
+                }
+            } else {
+                nitroActive = false;
+                if (nitro < 100) nitro += 0.1;
+            }
+            document.getElementById('nitroFill').style.height = nitro + '%';
+
+            // Yo'l harakati
+            const currentSpeed = nitroActive ? speed * 1.8 : speed;
+            roadOffset += currentSpeed;
+
+            // Ball
+            if (frameCount % 10 === 0) score++;
+
+            // O'yinchi harakati
+            if ((keys['ArrowLeft'] || keys['a']) && player.x > 45) {
+                player.x -= player.speed;
+            }
+            if ((keys['ArrowRight'] || keys['d']) && player.x < 440 - player.width) {
+                player.x += player.speed;
+            }
+
+            // Invincibility
+            if (invincible) {
+                invincibleTimer--;
+                if (invincibleTimer <= 0) invincible = false;
+            }
+
+            // Dushman yaratish
+            const spawnRate = Math.max(30, 80 - speed * 5);
+            if (frameCount % Math.floor(spawnRate) === 0) {
+                spawnEnemy();
+            }
+
+            // Powerup yaratish
+            if (frameCount % 400 === 0) {
+                spawnPowerup();
+            }
+
+            // Dushmanlarni yangilash
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                enemies[i].y += currentSpeed - enemies[i].speed;
+
+                // Ekrandan chiqsa o'chirish
+                if (enemies[i].y > canvas.height + 100) {
+                    enemies.splice(i, 1);
+                    continue;
+                }
+
+                // To'qnashuv
+                if (!invincible && checkCollision(player, enemies[i])) {
+                    lives--;
+                    createParticles(
+                        enemies[i].x + enemies[i].width / 2,
+                        enemies[i].y + enemies[i].height / 2,
+                        '#ff4444', 20
+                    );
+                    enemies.splice(i, 1);
+                    invincible = true;
+                    invincibleTimer = 90; // 1.5 soniya
+                    speed = Math.max(3, speed - 0.5);
+                    updateHUD();
+
+                    if (lives <= 0) {
+                        createParticles(player.x + player.width / 2, player.y + player.height / 2, '#ffaa00', 40);
+                        gameOver();
+                        return;
+                    }
+                    continue;
+                }
+            }
+
+            // Poweruplarni yangilash
+            for (let i = powerups.length - 1; i >= 0; i--) {
+                powerups[i].y += currentSpeed;
+
+                if (powerups[i].y > canvas.height + 50) {
+                    powerups.splice(i, 1);
+                    continue;
+                }
+
+                if (checkCollision(player, powerups[i])) {
+                    const p = powerups[i];
+                    if (p.type === 'heart') {
+                        if (lives < 3) lives++;
+                        showPowerupMsg('❤️ +1 Jon!');
+                    } else if (p.type === 'nitro') {
+                        nitro = 100;
+                        showPowerupMsg('⚡ Nitro to\'ldi!');
+                    } else if (p.type === 'shield') {
+                        invincible = true;
+                        invincibleTimer = 180;
+                        showPowerupMsg('🛡️ Qalqon!');
+                    }
+                    createParticles(p.x + 20, p.y + 20, '#f7c948', 10);
+                    powerups.splice(i, 1);
+                    updateHUD();
+                    continue;
+                }
+            }
+
+            // Zarrachalar
+            updateParticles();
+
+            // Nitro zarrachalari
+            if (nitroActive) {
+                createParticles(
+                    player.x + player.width / 2,
+                    player.y + player.height,
+                    Math.random() > 0.5 ? '#ff6b35' : '#f7c948',
+                    2
+                );
+            }
+
+            updateHUD();
+        }
+
+        // ===== CHIZISH =====
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Orqa fon (o't)
+        ctx.fillStyle = '#1a4d1a';
+        ctx.fillRect(0, 0, 480, canvas.height);
+
+        // Yo'l
+        drawRoad();
+
+        // Poweruplar
+        powerups.forEach(p => drawPowerup(p));
+
+        // Dushmanlar
+        enemies.forEach(e => drawEnemyCar(e));
+
+        // O'yinchi (blink qiladi agar invincible bo'lsa)
+        if (!invincible || Math.floor(frameCount / 4) % 2 === 0) {
+            drawCar(player.x, player.y, player.width, player.height, player.color, player.accentColor, true, player.name);
+        }
+
+        // Zarrachalar
+        drawParticles();
+
+        // Pauza ekrani
+        if (gamePaused) {
+            ctx.fillStyle = 'rgba(0,0,0,0.5)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#fff';
+            ctx.font = 'bold 40px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText('⏸️ PAUZA', canvas.width / 2, canvas.height / 2);
+        }
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    // ===== KLAVIATURA =====
+    document.addEventListener('keydown', (e) => {
+        keys[e.key] = true;
+
+        if (e.key === 'p' || e.key === 'P') {
+            if (gameRunning) {
+                gamePaused = !gamePaused;
+                document.getElementById('pauseOverlay').style.display = gamePaused ? 'flex' : 'none';
+            }
+        }
+
+        // O'yin boshlanmagan bo'lsa Enter
+        if (e.key === 'Enter' && !gameRunning && selectedCar) {
+            startGame();
+        }
+    });
+
+    document.addEventListener('keyup', (e) => {
+        keys[e.key] = false;
+    });
+
+    // ===== MOBIL BOSHQARUV =====
+    const btnLeft = document.getElementById('btnLeft');
+    const btnRight = document.getElementById('btnRight');
+    const btnNitro = document.getElementById('btnNitro');
+
+    function addTouchEvents(btn, key) {
+        btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; });
+        btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; });
+        btn.addEventListener('mousedown', (e) => { keys[key] = true; });
+        btn.addEventListener('mouseup', (e) => { keys[key] = false; });
+    }
+
+    addTouchEvents(btnLeft, 'ArrowLeft');
+    addTouchEvents(btnRight, 'ArrowRight');
+    addTouchEvents(btnNitro, 'ArrowUp');
+
+    // ===== SWIPE BOSHQARUV =====
+    let touchStartX = 0;
+    canvas.addEventListener('touchstart', (e) => {
+        touchStartX = e.touches[0].clientX;
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const touchX = e.touches[0].clientX;
+        const diff = touchX - touchStartX;
+        if (diff < -10) { keys['ArrowLeft'] = true; keys['ArrowRight'] = false; }
+        else if (diff > 10) { keys['ArrowRight'] = true; keys['ArrowLeft'] = false; }
+        else { keys['ArrowLeft'] = false; keys['ArrowRight'] = false; }
+        touchStartX = touchX;
+    });
+
+    canvas.addEventListener('touchend', () => {
+        keys['ArrowLeft'] = false;
+        keys['ArrowRight'] = false;
+    });
+</script>
+
+</body>
+</html>
